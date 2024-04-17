@@ -16,14 +16,49 @@ We choose da dataset including the network of visual cortex of mice [[2]](#refer
 
 Data represents cell-to-cell mapping of axonal tracts between neurons, created from cellular data like electron microscopy.
 
-Graphs are provided by default in [graphML](http://graphml.graphdrawing.org/) format. This is the only format that supports iterable attributes.
+Graphs are provided by default in [graphML](http://graphml.graphdrawing.org/) format.
+
+The result of scope of the study and the results can be found in the paper [Network anatomy and in vivo physiology of visual cortical neurons](#references).
+
+### Scope of the paper
+
+The study shows how the neurons of the brain of a mouse interacts between them in the primary visual cortex.
+
+Data of the study are collected thanks to the advance of two techniques:
+
+1. Two-photon calcium imaging, to "create" specific visual stimulus,
+2. Large-scale electron microscopy (EM), to trace a portion of these neurons’ local network.
+
+### Result of the paper
+
+The are neurons that stops and regulate neural activity and some that promote it.
+
+Researchers found that the neurons that promote neural activity have preference of 
+specific visual stimulus type (i.e. horizontal, vertical oblique).
+
+This opens the doors of further research for understanding the brain.
+
+### What we have
+
+A graph of the synaps  of a specific stimulus was created to understand better the structure and the connections 
+of the network. We do not have all the data and imaging of the study since wold be to big but just the network 
+of a synaps.
+
+We will use statistical techniques seen during the course to analyse this kind of data.
+
+> [!CAUTION]
+> It's important to have a good understanding of the domain we are working in when analyzing data.
+> Without this understanding, the analysis can be misleading and influenced by random factors.
+> For more detailed information about the data components, you can refer to the [Notebook](Cortical.ipynb) provided.
+
+# Run the Notebook
 
 > [!TIP]
 > An IDE like Pycharm will detect the [requirements](requirements.txt) and install a virtual environment for you in the project folder,
 > we encourage you to use this mechanism to run the Notebook. Otherwise you can follow these steps to manually install the 
 > [requirements](#manually-install-the-requirement).
 
-# Manually install the requirement
+## Manually install the requirement
 
 In the project folder run the following commands:
 
