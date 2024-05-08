@@ -8,7 +8,7 @@ rm(list = ls())
 
 library(igraph)
 
-g <- read_graph("Documents/Presentations/sand-2024/Data/mouse_visual.cortex_2.graphml", "graphml")
+g <- read_graph("Data/mouse_visual.cortex_2.graphml", "graphml")
 g.Y <- as.matrix(as_adjacency_matrix(g, sparse = TRUE))
 diag(g.Y)=NA
 plot(g, vertex.size = 10,  edge.arrow.size = 0.5,
