@@ -49,7 +49,7 @@ We will use statistical techniques seen during the course to analyse this kind o
 > [!CAUTION]
 > It's important to have a good understanding of the domain we are working in when analyzing data.
 > Without this understanding, the analysis can be misleading and influenced by random factors.
-> For more detailed information about the data components, you can refer to the [Notebook](Cortical.ipynb) provided.
+> For more detailed information about the data components, you can refer to the [Notebook](notebooks/Cortical.ipynb) provided.
 
 # Run the Notebook
 
