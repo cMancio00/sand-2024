@@ -33,7 +33,7 @@ https://github.com/cMancio00/sand-2024
 
 # Sinapsi
 
-![bg](Images/neurons.png)
+![bg](Plots/neurons.png)
 
 ---
 
@@ -59,7 +59,7 @@ Da questo primo modello, simuliamo le misure di centralità per vedere se il mod
 
 
 
-![bg left](Images/SRG/Pasted%20image.png)
+![bg left fit](Plots/SRG/Pasted%20image.png)
 # SRG Betweenes Centrality
   
   Devo mettere le immagini per bene
@@ -68,6 +68,6 @@ Da questo primo modello, simuliamo le misure di centralità per vedere se il mod
 
 # SRG Densitá
 
-![left](Images/SRG/SRG_Degree.jpeg)
+![bg left fit](Plots/SRG/SRG_Degree.svg)
 
 da rivedere le immagini
