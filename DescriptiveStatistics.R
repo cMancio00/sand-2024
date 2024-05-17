@@ -30,7 +30,7 @@ g.sy = as.undirected(g, mode = "collapse")
 g.degree.u<- centr_degree(g, loops = F)$centralization
 g.degree.in <- centr_degree(g,mode="in", loops = F)$centralization
 g.degree.out <- centr_degree(g,mode="out", loops = F)$centralization
-g.closeness <- centr_clo((g))$centralization
+g.closeness <- centr_clo(g,mode="out")$centralization
 g.betweeness.u <- centr_betw(g, directed = F)$centralization
 g.betweeness.d <- centr_betw(g, directed = T)$centralization
 g.eigen.u <- eigen_centrality(g,directed=F)$vector 
