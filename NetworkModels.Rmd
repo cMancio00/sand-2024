@@ -1,0 +1,52 @@
+---
+title: "Statistical modeling of visual cortical neurons"
+output: pdf_document
+author: "Cristian Bargiacchi, Christian Mancini"
+subject: "Network Analysis"
+---
+```{r include=FALSE}
+knitr::opts_chunk$set(comment = NA)
+```
+
+```{r brasa-tutto, include=FALSE}
+rm(list = ls())
+```
+
+# Preliminary steps
+
+```{r import-library, message=FALSE}
+library(igraph)
+library(ergm)
+```
+
+We first need to load our data using `igraph`. Data can be found [here](https://github.com/cMancio00/sand-2024/tree/main/Data)
+
+```{r import-data}
+neurons_g <- read_graph("Data/mouse_visual.cortex_2.graphml","graphml")
+Y = as_adjacency_matrix(neurons_g, sparse = F)
+diag(Y) = NA
+```
+
+For starting the modeling we have first to convert an igraph object to a network one.
+
+The conversion retain the order of the nodes but we also have to pass the attributes.
+
+```{r data-convertion, message=FALSE, warning=FALSE}
+neurons = network(Y, directed = T)
+neurons %v% "type1" = vertex_attr(neurons_g,"type1",V(neurons_g))
+neurons %v% "type2" = vertex_attr(neurons_g, "type2",V(neurons_g))
+```
+
+Now we are good to go!
+
+# Homogeneous Simple Random Graph
+
+Let's start with the simplest model.
+
+```{r message=FALSE, results=FALSE}
+srg_homo = ergm(neurons ~ edges) 
+```
+
+```{r}
+summary(srg_homo)
+```
