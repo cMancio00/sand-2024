@@ -101,8 +101,10 @@ AIC(srg_homo , srg_no_homo)
 
 # ! ATT -- MCMCMLE used for estimation 
 # let us fix a seed to replicate results
+
+
 p1_classic = ergm(neurons ~ edges + sender + receiver + mutual, 
-            control = control.ergm(seed = 1))
+            control = control.ergm(seed = 1)
 
 summary(p1_classic)
 

@@ -4,6 +4,12 @@ output: pdf_document
 author: "Cristian Bargiacchi, Christian Mancini"
 subject: "Network Analysis"
 ---
+
+```{r, include=FALSE, eval=FALSE}
+library(rmarkdown)
+render("NetworkModels.Rmd", output_format = "pdf_document")
+```
+
 ```{r include=FALSE}
 knitr::opts_chunk$set(comment = NA)
 ```
@@ -27,9 +33,9 @@ Y = as_adjacency_matrix(neurons_g, sparse = F)
 diag(Y) = NA
 ```
 
-For starting the modeling we have first to convert an igraph object to a network one.
+For starting the modeling we first have to convert an igraph object to a network one.
 
-The conversion retain the order of the nodes but we also have to pass the attributes.
+The conversion retains the order of the nodes but we also have to pass the attributes.
 
 ```{r data-convertion, message=FALSE, warning=FALSE}
 neurons = network(Y, directed = T)
@@ -43,6 +49,10 @@ Now we are good to go!
 
 Let's start with the simplest model.
 
+**Assumptions**:
+
+-   The probability of forming a tie is the **same** for every pair.
+
 ```{r message=FALSE, results=FALSE}
 srg_homo = ergm(neurons ~ edges) 
 ```
@@ -50,3 +60,204 @@ srg_homo = ergm(neurons ~ edges)
 ```{r}
 summary(srg_homo)
 ```
+
+This model corresponds to a logistic regression, so we can interpret the result as odds:
+
+```{r include=FALSE}
+odds = exp(srg_homo$coefficients)
+```
+
+> The odds of observing a relation between two randomly selected nodes is about `r sprintf("%.2f", (1-odds)*100)`% lower than that of not observing it.
+
+# Non-Homogeneous Simple Random Graph
+
+**Assumptions**:
+
+-   The same probability of forming a tie is relaxed.
+-   Takes in consideration sender and receiver effect
+
+> Since some node do not have in or out degree, those parameter will be set to `-inf`, so the model can't be used, but it can be extimeted.
+
+```{r message=FALSE, results=FALSE, eval=FALSE}
+srg_no_homo = ergm(neurons ~ edges + sender + receiver,
+                   control = control)
+```
+
+# Dyad independence model
+
+**Assumptions**:
+
+-   Dyads are independents and follows a *Multinomial* distribution
+-   We take in consideration the reciprocity parameter $\gamma_{ij}$ (*mutual*)
+
+> Since some estimations took to long we switched to a *Stochastic Approximation*.
+
+## Classic p1 model
+
+**Assumptions**:
+
+-   the reciprocity parameter is $\gamma =\gamma_{ij}$
+-   $\mu_{ij}$ depends additively from on the sender and receiver effect of node $i$ and $j$ involved.
+
+```{r message=FALSE, warning=FALSE, results=FALSE}
+p1_classic = ergm(neurons ~ edges + sender + receiver + mutual,
+                  control = control.ergm(seed = 1, main.method = "Stochastic-Approximation"))
+```
+
+## Sender and reciver independency assumption
+
+We now construct 3 p1 model with the following assumptions:
+
+1.  Sender effect independent
+2.  Receiver effect independent (can't be estimated)
+3.  Sender and receiver effect independent
+
+```{r message=FALSE, results=FALSE}
+p1_sender_ind = ergm(neurons ~ edges + receiver + mutual,
+                     control = control.ergm(seed = 1, main.method = "Stochastic-Approximation"))
+```
+
+> This model below can **not** be estimated
+
+```{r message=FALSE, results=FALSE, eval=FALSE}
+p1_receiver_ind = ergm(neurons ~ edges + sender + mutual,
+                       control = control.ergm(seed = 1, main.method = "Stochastic-Approximation"))
+```
+
+```{r message=FALSE, results=FALSE}
+p1_mutual_only = ergm(neurons ~ edges + mutual,
+                      control = control.ergm(seed = 1))
+```
+
+```{r}
+summary(p1_mutual_only)
+```
+
+The following is a small table that compares BIC of usable p1 models.
+
+```{r p1-bic}
+print(BIC(p1_classic,p1_sender_ind))
+```
+
+# Nodal attributes
+
+In this part of the analysis we include nodal attributes to explore *homophily* and *main* effects.
+
+-   **Main effect**: Nodes of a specific type have more chance to form ties
+
+-   **Homophily effect** Nodes of a specific type have more chance to form ties between nodes of the same type
+
+> As saw in the descriptive analysis we expect to observe dissortative mixing.
+
+Since we only have categorical attributes we will use:
+
+-   `nodefactor()` to include main effect
+-   `nodematch()` to include homophily effect
+
+Let's explore "*type1*" nodal attribute.
+
+```{r message=FALSE, results=FALSE}
+main_homo_type_one = ergm(neurons ~ edges + nodefactor("type1") + nodematch("type1"), 
+            control = control.ergm(seed = 1)) 
+
+```
+
+```{r}
+summary(main_homo_type_one)
+```
+
+As we expect, the *Dissortative mixing* is captured and "*Characterized pyramidal neuron*" have more chances to form a ties (which is true because they start the synapses). More precisely, the probability is `r sprintf("%.2f", exp(4.129396))` higher respect to a "*Cell body in EM volume*".
+
+Now we use *"type2"* attribute, but only as main effect, and we remove `mutual` since it is estimated as `-inf`.
+
+```{r message=FALSE, results=FALSE}
+main_type_two = ergm(neurons ~ edges + nodefactor("type2"),
+            control = control.ergm(seed = 1)) 
+```
+
+```{r}
+summary(main_type_two)
+```
+
+We basically got the same conclusions. Since the reference is "*NA*" which can only be "*Characterized pyramidal neuron*", the odds of form a tie are smaller if a node is "*excitatory*" or "*inhibitory*".
+
+Let's now put all together:
+
+```{r message=FALSE, results=FALSE}
+main_homo = ergm(neurons ~ edges + nodefactor("type1") + nodefactor("type2") 
+                 + nodematch("type1"), 
+            control = control.ergm(seed = 1)) 
+```
+
+and compare BIC for these models including nodal attributes.
+
+```{r include=FALSE}
+bic_main_homo_type_one <- sprintf("%.2f", BIC(main_homo_type_one))
+bic_main_type_two <- sprintf("%.2f", BIC(main_type_two))
+bic_main_homo <- sprintf("%.2f", BIC(main_homo))
+```
+
+| Model | BIC |
+|---------|-----|
+| Main Homo Type One | `r bic_main_homo_type_one` |
+| Main Type Two | `r bic_main_type_two` |
+| Main Homo | `r bic_main_homo` |
+
+According to `BIC` the full model is better.
+
+# Nodal attributes (Binary)
+
+Let's repeat the above analysis but using new attributes which are the binarization of the real ones.
+
+As reference category we choose "*Characterized pyramidal neuron*" and "*Postsynaptic excitatory target*".
+
+Generate the new attributes:
+
+```{r message=FALSE, results=FALSE}
+type1.new = rep(0, 195)
+type1.new[vertex_attr(neurons_g,"type1") == "Characterized pyramidal neuron"] = 1
+type1.new
+neurons %v% "type1.new" = type1.new
+
+type2.new = rep(0, 195)
+type2.new[vertex_attr(neurons_g,"type2") == "Postsynaptic excitatory target"] = 1
+type2.new
+neurons %v% "type2.new" = type2.new
+```
+
+Estimate all the models again:
+
+```{r message=FALSE, results=FALSE}
+main_homo_type_one_binary = ergm(neurons ~ edges + nodefactor("type1.new") 
+                                 + nodematch("type1.new"), 
+            control = control.ergm(seed = 1))
+
+main_type_two_binary = ergm(neurons ~ edges + nodefactor("type2.new"),
+            control = control.ergm(seed = 1))
+
+main_homo_binary = ergm(neurons ~ edges + nodefactor("type1.new") 
+                        + nodefactor("type2.new") + nodematch("type1.new"), 
+            control = control.ergm(seed = 1)) 
+```
+
+```{r include=FALSE}
+bic_main_homo_type_one_binary <- sprintf("%.2f", BIC(main_homo_type_one_binary))
+bic_main_type_two_binary <- sprintf("%.2f", BIC(main_type_two_binary))
+bic_main_homo_binary <- sprintf("%.2f", BIC(main_homo_binary))
+```
+
+| Model                     | BIC                               |
+|---------------------------|-----------------------------------|
+| main_homo_type_one_binary | `r bic_main_homo_type_one_binary` |
+| main_type_two_binary      | `r bic_main_type_two_binary`      |
+| main_homo_binary          | `r bic_main_homo_binary`          |
+
+According to `BIC` the new model with just "*type1.new*" is the best for now with a score of `r sprintf("%.2f", BIC(main_homo_type_one_binary))`.
+
+Let's explore the summary of the model
+
+```{r}
+summary(main_homo_type_one_binary)
+```
+
+As we can see every parameter is significant. The interpretation is the same as before.
