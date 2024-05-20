@@ -76,7 +76,7 @@ odds = exp(srg_homo$coefficients)
 -   The same probability of forming a tie is relaxed.
 -   Takes in consideration sender and receiver effect
 
-> Since some node do not have in or out degree, those parameter will be set to `-inf`, so the model can't be used, but it can be extimeted.
+> Since some node do not have in or out degree, those parameter will be set to `-inf`, so the model can't be used, but it can be estimated.
 
 ```{r message=FALSE, results=FALSE, eval=FALSE}
 srg_no_homo = ergm(neurons ~ edges + sender + receiver,
@@ -90,8 +90,6 @@ srg_no_homo = ergm(neurons ~ edges + sender + receiver,
 -   Dyads are independents and follows a *Multinomial* distribution
 -   We take in consideration the reciprocity parameter $\gamma_{ij}$ (*mutual*)
 
-> Since some estimations took to long we switched to a *Stochastic Approximation*.
-
 ## Classic p1 model
 
 **Assumptions**:
@@ -99,44 +97,34 @@ srg_no_homo = ergm(neurons ~ edges + sender + receiver,
 -   the reciprocity parameter is $\gamma =\gamma_{ij}$
 -   $\mu_{ij}$ depends additively from on the sender and receiver effect of node $i$ and $j$ involved.
 
-```{r message=FALSE, warning=FALSE, results=FALSE}
+```{r message=FALSE, warning=FALSE, results=FALSE, eval=FALSE}
 p1_classic = ergm(neurons ~ edges + sender + receiver + mutual,
                   control = control.ergm(seed = 1, main.method = "Stochastic-Approximation"))
 ```
 
 ## Sender and reciver independency assumption
 
-We now construct 3 p1 model with the following assumptions:
+We now construct 3 p1 model to check for *reciprocity* with the following assumptions:
 
 1.  Sender effect independent
-2.  Receiver effect independent (can't be estimated)
-3.  Sender and receiver effect independent
+2.  Receiver effect independent
+3.  Sender and receiver effect independent (equals to non-homogeneous SRG)
 
-```{r message=FALSE, results=FALSE}
+> For the same reasons explained in the non-homogeneous SRG, these models can't be estimated. The coefficients are set to `-inf`.
+
+```{r message=FALSE, results=FALSE, eval=FALSE}
 p1_sender_ind = ergm(neurons ~ edges + receiver + mutual,
-                     control = control.ergm(seed = 1, main.method = "Stochastic-Approximation"))
+                     control = control.ergm(seed = 1))
 ```
-
-> This model below can **not** be estimated
 
 ```{r message=FALSE, results=FALSE, eval=FALSE}
 p1_receiver_ind = ergm(neurons ~ edges + sender + mutual,
-                       control = control.ergm(seed = 1, main.method = "Stochastic-Approximation"))
+                       control = control.ergm(seed = 1))
 ```
 
-```{r message=FALSE, results=FALSE}
+```{r message=FALSE, results=FALSE, eval=FALSE}
 p1_mutual_only = ergm(neurons ~ edges + mutual,
                       control = control.ergm(seed = 1))
-```
-
-```{r}
-summary(p1_mutual_only)
-```
-
-The following is a small table that compares BIC of usable p1 models.
-
-```{r p1-bic}
-print(BIC(p1_classic,p1_sender_ind))
 ```
 
 # Nodal attributes
@@ -166,9 +154,11 @@ main_homo_type_one = ergm(neurons ~ edges + nodefactor("type1") + nodematch("typ
 summary(main_homo_type_one)
 ```
 
-As we expect, the *Dissortative mixing* is captured and "*Characterized pyramidal neuron*" have more chances to form a ties (which is true because they start the synapses). More precisely, the probability is `r sprintf("%.2f", exp(4.129396))` higher respect to a "*Cell body in EM volume*".
+As we expect, the *Dissortative mixing* is captured. The probability of forming ties with nodes of the same type is `r sprintf("%.2f", (1-(exp(-4.10482)))*100)`% lower, with respect to probability of forming ties with different one. Moreover, "*Characterized pyramidal neuron*" have more chances to form ties (which is true because they start the synapses). More precisely, the odds is `r sprintf("%.2f", exp(4.12940))` times higher respect to a "*Cell body in EM volume*".
 
 Now we use *"type2"* attribute, but only as main effect, and we remove `mutual` since it is estimated as `-inf`.
+
+> We exclude homophily, since all the coefficents will result non significants.
 
 ```{r message=FALSE, results=FALSE}
 main_type_two = ergm(neurons ~ edges + nodefactor("type2"),
@@ -188,8 +178,12 @@ main_homo = ergm(neurons ~ edges + nodefactor("type1") + nodefactor("type2")
                  + nodematch("type1"), 
             control = control.ergm(seed = 1)) 
 ```
+```{r}
+summary(main_homo)
+```
+We can see that the main effect of being a *Dendritic fragment* is not significant, so the tendency to form more ties than by chance depends only of being a *Characterized pyramidal neuron* or not.
 
-and compare BIC for these models including nodal attributes.
+We can now compare BIC for these models including nodal attributes.
 
 ```{r include=FALSE}
 bic_main_homo_type_one <- sprintf("%.2f", BIC(main_homo_type_one))
@@ -197,11 +191,11 @@ bic_main_type_two <- sprintf("%.2f", BIC(main_type_two))
 bic_main_homo <- sprintf("%.2f", BIC(main_homo))
 ```
 
-| Model | BIC |
-|---------|-----|
+| Model              | BIC                        |
+|--------------------|----------------------------|
 | Main Homo Type One | `r bic_main_homo_type_one` |
-| Main Type Two | `r bic_main_type_two` |
-| Main Homo | `r bic_main_homo` |
+| Main Type Two      | `r bic_main_type_two`      |
+| Main Homo          | `r bic_main_homo`          |
 
 According to `BIC` the full model is better.
 
@@ -261,3 +255,84 @@ summary(main_homo_type_one_binary)
 ```
 
 As we can see every parameter is significant. The interpretation is the same as before.
+
+# Markov
+
+si piglia il modello bono e si aggiunge roba, ostar(2) non va --> stelle K-alternati dopo 
+
+
+
+```{r message=FALSE, warning=FALSE}
+markov = ergm(neurons ~ edges + nodefactor("type1.new") + nodematch("type1.new") + istar(2) + triangles, 
+             control = control.ergm(seed = 1))  
+```
+```{r}
+summary(mod9)
+```
+
+```{r message=FALSE, warning=FALSE}
+markov_no_triangles = ergm(neurons ~ edges + nodefactor("type1.new") 
+                           + nodematch("type1.new") + nodefactor("type2.new") + istar(2), 
+             control = control.ergm(seed = 1))
+```
+
+```{r}
+summary(markov_no_triangles)
+```
+
+ metti bic di markov.
+ 
+ 
+# Markov k-star alternate
+
+Questi mi servono perché ostar non va, quindi uso i k-star alternati
+
+
+```{r message=FALSE, warning=FALSE}
+k_star = ergm(neurons ~ edges + nodefactor("type1.new") + nodefactor("type2.new") + nodematch("type1.new") + gwidegree(decay = 1, fixed = TRUE) + gwodegree(decay = 1, fixed = TRUE) ,
+             control = control.ergm(seed = 1, main.method = "Stochastic-Approximation"))
+```
+```{r}
+summary(k_star)
+```
+
+# Social Circuits
+
+```{r message=FALSE, warning=FALSE}
+social = ergm(neurons ~ edges + nodefactor("type1.new") + nodefactor("type2.new") 
+             + nodematch("type1.new") + 
+                gwdsp(decay = 1, fixed = T), control = control.ergm(seed=1, main.method = "Stochastic-Approximation" ))
+```
+```{r}
+summary(social)
+```
+
+I meglio sono Markov_no_triangoli e k-star
+
+# Simulazione
+
+```{r}
+sim_k_star = simulate(k_star, nsim = 100, verbose = TRUE, seed = 1)
+```
+```{r}
+library(intergraph)
+
+fnc = function(xx){
+  ig = asIgraph(xx)
+  tr = transitivity(ig)
+  ideg = sd(degree(ig, mode = "in"))
+  odeg = sd(degree(ig, mode = "out"))
+  return(c(tr, ideg, odeg))
+}
+
+null.distr = matrix(,100,3)
+for(b in 1:100){
+  null.distr[b,]  = fnc(sim_markov_no_triangles[[b]])
+}
+dev.new()
+par(mfrow = c(3,1))
+hist(unlist(null.distr[,1]), xlab = "transitivity"); abline(v = transitivity(neurons_g), col = "red")
+hist(unlist(null.distr[,2]), xlab = "in-degree"); abline(v = sd(degree(neurons_g, mode = "in")), col = "red")
+hist(unlist(null.distr[,3]), xlim = c(3.5,5.25),xlab = "out-degree"); abline(v = sd(degree(neurons_g, mode = "out")), col = "red")
+
+```

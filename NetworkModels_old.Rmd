@@ -306,7 +306,7 @@ sim = simulate(srg_no_homo4, nsim = 100, verbose = TRUE, seed = 1)
 # let us assume we want to verify whether the model is appropriate to represent the degree and the 
 # transitivity in the neuronswork
 
-# install.packages("intergraph")
+#install.packages("intergraph")
 library(intergraph)
 ?asIgraph
 
