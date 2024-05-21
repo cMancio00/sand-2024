@@ -2,6 +2,7 @@
 title: "Statistical modeling of visual cortical neurons"
 output: pdf_document
 author: "Cristian Bargiacchi, Christian Mancini"
+date: "`r format(Sys.time(), '%d %B %Y')`" 
 subject: "Network Analysis"
 ---
 
