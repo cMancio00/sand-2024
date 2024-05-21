@@ -23,6 +23,7 @@ rm(list = ls())
 ```{r import-library, message=FALSE}
 library(igraph)
 library(ergm)
+library(intergraph)
 ```
 
 We first need to load our data using `igraph`. Data can be found [here](https://github.com/cMancio00/sand-2024/tree/main/Data)
@@ -99,7 +100,7 @@ srg_no_homo = ergm(neurons ~ edges + sender + receiver,
 
 ```{r message=FALSE, warning=FALSE, results=FALSE, eval=FALSE}
 p1_classic = ergm(neurons ~ edges + sender + receiver + mutual,
-                  control = control.ergm(seed = 1, main.method = "Stochastic-Approximation"))
+                  control = control.ergm(seed = 1))
 ```
 
 ## Sender and reciver independency assumption
@@ -126,6 +127,8 @@ p1_receiver_ind = ergm(neurons ~ edges + sender + mutual,
 p1_mutual_only = ergm(neurons ~ edges + mutual,
                       control = control.ergm(seed = 1))
 ```
+
+At this point we can just relay on the SRG. The next step is to include nodal attributes and exploit the background knowledge that we have of this network. We want to exploit the starts that are cleary visible in the network. Let's do one step at a time.
 
 # Nodal attributes
 
@@ -181,7 +184,7 @@ main_homo = ergm(neurons ~ edges + nodefactor("type1") + nodefactor("type2")
 ```{r}
 summary(main_homo)
 ```
-We can see that the main effect of being a *Dendritic fragment* is not significant, so the tendency to form more ties than by chance depends only of being a *Characterized pyramidal neuron* or not.
+We can see that the main effect of being a *Dendritic fragment* is not significant, so the tendency to form more ties than by chance depends only of being a *Characterized pyramidal neuron* or not. This is a good thing, since it reflect our descriptive analysis. 
 
 We can now compare BIC for these models including nodal attributes.
 
@@ -193,9 +196,9 @@ bic_main_homo <- sprintf("%.2f", BIC(main_homo))
 
 | Model              | BIC                        |
 |--------------------|----------------------------|
-| Main Homo Type One | `r bic_main_homo_type_one` |
-| Main Type Two      | `r bic_main_type_two`      |
-| Main Homo          | `r bic_main_homo`          |
+| main_Homo_Type_One | `r bic_main_homo_type_one` |
+| main_Type_Two      | `r bic_main_type_two`      |
+| main_Homo          | `r bic_main_homo`          |
 
 According to `BIC` the full model is better.
 
@@ -203,7 +206,7 @@ According to `BIC` the full model is better.
 
 Let's repeat the above analysis but using new attributes which are the binarization of the real ones.
 
-As reference category we choose "*Characterized pyramidal neuron*" and "*Postsynaptic excitatory target*".
+As reference category we choose "*Characterized pyramidal neuron*" (for *type1*) and "*Postsynaptic excitatory target*" (for *type2*).
 
 Generate the new attributes:
 
@@ -256,19 +259,21 @@ summary(main_homo_type_one_binary)
 
 As we can see every parameter is significant. The interpretation is the same as before.
 
-# Markov
+# Markov Model
 
-si piglia il modello bono e si aggiunge roba, ostar(2) non va --> stelle K-alternati dopo 
+We move in the direction of including stars. Given the best model until now, we add parameters.
 
-
+We add the `instar(2)` and `triangles` parameter. Unfortunately, `ostar(2)` can't be used due to model degeneracy.
 
 ```{r message=FALSE, warning=FALSE}
-markov = ergm(neurons ~ edges + nodefactor("type1.new") + nodematch("type1.new") + istar(2) + triangles, 
+markov = ergm(neurons ~ edges + nodefactor("type1.new") + 
+              nodematch("type1.new") + istar(2) + triangles, 
              control = control.ergm(seed = 1))  
 ```
 ```{r}
-summary(mod9)
+summary(markov)
 ```
+Let's tweak this model a bit. We know that no triangles are present in the network, so we remove it and see if `BIC` improves. We also take in consideration `nodefactor("type2.new")`.
 
 ```{r message=FALSE, warning=FALSE}
 markov_no_triangles = ergm(neurons ~ edges + nodefactor("type1.new") 
@@ -280,43 +285,79 @@ markov_no_triangles = ergm(neurons ~ edges + nodefactor("type1.new")
 summary(markov_no_triangles)
 ```
 
- metti bic di markov.
- 
- 
-# Markov k-star alternate
+The result of basic Markov models are summarized in the table below.
 
-Questi mi servono perché ostar non va, quindi uso i k-star alternati
+```{r include=FALSE}
+bic_markov <- sprintf("%.2f", BIC(markov))
+bic_markov_no_triangles <- sprintf("%.2f", BIC(markov_no_triangles))
 
+```
+
+| Model                     | BIC                               |
+|---------------------------|-----------------------------------|
+| markov                    | `r bic_markov`                    |
+| markov_no_triangles       | `r bic_markov_no_triangles`       |
+
+# Markov with alternating k_stars
+
+Since we want to exploit the stars in the graph, a solution is using the "*alternating k_stars*".
+We are not interest in "*alternating k-paths*" since they are not observed in the network.
+
+> Maybe what follows is a little cheating or inaccurate, but the only way to let the estimation end is using a *Stochastic-Approximation*.
 
 ```{r message=FALSE, warning=FALSE}
-k_star = ergm(neurons ~ edges + nodefactor("type1.new") + nodefactor("type2.new") + nodematch("type1.new") + gwidegree(decay = 1, fixed = TRUE) + gwodegree(decay = 1, fixed = TRUE) ,
+k_star = ergm(neurons ~ edges + nodefactor("type1.new") + nodefactor("type2.new") 
+              + nodematch("type1.new") + gwidegree(decay = 1, fixed = TRUE) 
+              + gwodegree(decay = 1, fixed = TRUE) ,
              control = control.ergm(seed = 1, main.method = "Stochastic-Approximation"))
 ```
 ```{r}
 summary(k_star)
 ```
+This is the best model we can get.
 
 # Social Circuits
 
+We also propose a social circuit model, but it has worst fit with respect to the previus models.
+we quote it anyway for completeness.
+
 ```{r message=FALSE, warning=FALSE}
 social = ergm(neurons ~ edges + nodefactor("type1.new") + nodefactor("type2.new") 
-             + nodematch("type1.new") + 
-                gwdsp(decay = 1, fixed = T), control = control.ergm(seed=1, main.method = "Stochastic-Approximation" ))
+             + nodematch("type1.new") + gwdsp(decay = 1, fixed = T),
+             control = control.ergm(seed=1, main.method = "Stochastic-Approximation" ))
 ```
 ```{r}
 summary(social)
 ```
 
-I meglio sono Markov_no_triangoli e k-star
+# Recap of models
+
+To recap the performances of models the best ones are `markov_no_triangles` and `k_star` (which is however estimated with a stochastic approach).
+
+The table below recap the goodness of fit of the best models compared to the homogeneous SRG.
+
+```{r include=FALSE}
+bic_srg_homo <- sprintf("%.2f", BIC(srg_homo))
+bic_k_star <- sprintf("%.2f", BIC(k_star))
+```
+
+| Model                     | BIC                               |
+|---------------------------|-----------------------------------|
+| srg_homo                  | `r bic_srg_homo`                  |
+| markov_no_triangles       | `r bic_markov_no_triangles`       |
+| k_star                    | `r bic_k_star`                    |
 
 # Simulazione
 
-```{r}
-sim_k_star = simulate(k_star, nsim = 100, verbose = TRUE, seed = 1)
-```
-```{r}
-library(intergraph)
+Now that we have chosen the two best models, we can test them in a simulation to see if they can model the network. The reference will be the performance of the homogeneous simple random graph. 
 
+```{r message=FALSE, warning=FALSE}
+nsim=100
+sim_srg = simulate(srg_homo, nsim = nsim, verbose = TRUE, seed = 1)
+sim_markov_no_triangles = simulate(k_star, nsim = nsim, verbose = TRUE, seed = 1)
+sim_k_star = simulate(k_star, nsim = nsim, verbose = TRUE, seed = 1)
+```
+```{r message=FALSE, warning=FALSE}
 fnc = function(xx){
   ig = asIgraph(xx)
   tr = transitivity(ig)
@@ -325,14 +366,53 @@ fnc = function(xx){
   return(c(tr, ideg, odeg))
 }
 
-null.distr = matrix(,100,3)
-for(b in 1:100){
-  null.distr[b,]  = fnc(sim_markov_no_triangles[[b]])
+null.distr.srg = matrix(,nsim,3)
+null.distr.markov_no_triangles = matrix(,nsim,3)
+null.distr.k_star = matrix(,nsim,3)
+for(b in 1:nsim){
+  null.distr.srg[b,]  = fnc(sim_srg[[b]])
+  null.distr.markov_no_triangles[b,]  = fnc(sim_markov_no_triangles[[b]])
+  null.distr.k_star[b,]  = fnc(sim_k_star[[b]])
 }
+```
+
+## SRG simulation
+```{r}
 dev.new()
 par(mfrow = c(3,1))
-hist(unlist(null.distr[,1]), xlab = "transitivity"); abline(v = transitivity(neurons_g), col = "red")
-hist(unlist(null.distr[,2]), xlab = "in-degree"); abline(v = sd(degree(neurons_g, mode = "in")), col = "red")
-hist(unlist(null.distr[,3]), xlim = c(3.5,5.25),xlab = "out-degree"); abline(v = sd(degree(neurons_g, mode = "out")), col = "red")
+hist(unlist(null.distr.srg[,1]), xlab = "transitivity");
+abline(v = transitivity(neurons_g), col = "red")
+hist(unlist(null.distr.srg[,2]), xlim = c(0.25,1.25),xlab = "in-degree");
+abline(v = sd(degree(neurons_g, mode = "in")), col = "red")
+hist(unlist(null.distr.srg[,3]), xlim = c(1,5.25),xlab = "out-degree");
+abline(v = sd(degree(neurons_g, mode = "out")), col = "red")
 
 ```
+## Markov without triangles simulation
+```{r}
+dev.new()
+par(mfrow = c(3,1))
+hist(unlist(null.distr.markov_no_triangles[,1]), xlab = "transitivity");
+abline(v = transitivity(neurons_g), col = "red")
+hist(unlist(null.distr.markov_no_triangles[,2]), xlab = "in-degree");
+abline(v = sd(degree(neurons_g, mode = "in")), col = "red")
+hist(unlist(null.distr.markov_no_triangles[,3]),
+     xlim = c(4,5.25),xlab = "out-degree");
+abline(v = sd(degree(neurons_g, mode = "out")), col = "red")
+```
+
+## Alternating k-stars simulation
+```{r fig.show="hold", out.width="50%", fig.cap="prova cap"}
+dev.new()
+par(mfrow = c(3,1))
+hist(unlist(null.distr.k_star[,1]), xlab = "transitivity");
+abline(v = transitivity(neurons_g), col = "red")
+hist(unlist(null.distr.k_star[,2]), xlab = "in-degree");
+abline(v = sd(degree(neurons_g, mode = "in")), col = "red")
+hist(unlist(null.distr.k_star[,3]), xlim = c(4,5.25),xlab = "out-degree");
+abline(v = sd(degree(neurons_g, mode = "out")), col = "red")
+```
+
+# Conclusions from model simulations
+
+We can see a marked improvement over the SRG. We are able to model transitivity and in degree. Unfortunately, we still cannot model the outgoing degree (the stars) with the estimated models. We can however be satisfied with the closeness of the estimate. As far as the choice of model is concerned, having similar performance, we prefer the Markov model without triangles because it was estimated using the MCMC procedure.
