@@ -1,0 +1,376 @@
+Index: README.md
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+># Analysis of visual cortical neurons of mice\n\n| Authors             | email                                   | \n|---------------------|-----------------------------------------|\n| Cristian Bargiacchi | <a href=\"mailto:cristian.bargiacchi@edu.unifi.it\">cristian.bargiacchi@edu.unifi.it</a> | \n| Christian Mancini   | <a href=\"mailto:christian.mancini1@edu.unifi.it\">christian.mancini1@edu.unifi.it</a> |  \n\n## Project description\n\nThis is the final project of [Statistical Analysis of Network Data](https://www.unifi.it/p-ins2-2022-624136-0.html) at \nUniversity of Florence.\n\nThe aim of the project is to analyse some network data with the techniques seen during the course.\n\nWe choose da dataset including the network of visual cortex of mice [[2]](#references).\n\nData represents cell-to-cell mapping of axonal tracts between neurons, created from cellular data like electron microscopy.\n\nGraphs are provided by default in [graphML](http://graphml.graphdrawing.org/) format.\n\nThe result of scope of the study and the results can be found in the paper [Network anatomy and in vivo physiology of visual cortical neurons](#references).\n\n### Scope of the paper\n\nThe study shows how the neurons of the brain of a mouse interacts between them in the primary visual cortex.\n\nData of the study are collected thanks to the advance of two techniques:\n\n1. Two-photon calcium imaging, to \"create\" specific visual stimulus,\n2. Large-scale electron microscopy (EM), to trace a portion of these neurons’ local network.\n\n### Result of the paper\n\nThe are neurons that stops and regulate neural activity and some that promote it.\n\nResearchers found that the neurons that promote neural activity have preference of \nspecific visual stimulus type (i.e. horizontal, vertical oblique).\n\nThis opens the doors of further research for understanding the brain.\n\n### What we have\n\nA graph of the synaps  of a specific stimulus was created to understand better the structure and the connections \nof the network. We do not have all the data and imaging of the study since wold be to big but just the network \nof a synaps.\n\nWe will use statistical techniques seen during the course to analyse this kind of data.\n\n> [!CAUTION]\n> It's important to have a good understanding of the domain we are working in when analyzing data.\n> Without this understanding, the analysis can be misleading and influenced by random factors.\n> For more detailed information about the data components, you can refer to the [Notebook](notebooks/Cortical.ipynb) provided.\n\n# Run the Notebook\n\n> [!TIP]\n> An IDE like Pycharm will detect the [requirements](requirements.txt) and install a virtual environment for you in the project folder,\n> we encourage you to use this mechanism to run the Notebook. Otherwise you can follow these steps to manually install the \n> [requirements](#manually-install-the-requirement).\n\n## Manually install the requirement\n\nIn the project folder run the following commands:\n\n```bash\npython3 -m venv .venv\n```\n> [!NOTE]\n> The name of the virtual environment will be the same as the name of hidden folder, \n>in this case `.venv`.\n\nThe virtual environment can be activated with:\n\n```bash\nsource .venv/bin/activate\n```\nThe requirements can be installed with:\n\n```bash\npip install --upgrade pip & pip install -r requirements.txt\n```\n\nWe just now need to make the virtual environment a Jupyter kernel.\n\n```bash\npython -Xfrozen_modules=off -m ipykernel install --user --name=sand-2024\n```\nNow you can choose `sand-2024` as a Kernel.\n\nWe can see the installed kernels with:\n\n```bash\njupyter kernelspec list\n```\nThe output should be something like this:\n\n```\nAvailable kernels:\n  python3      /home/mancio/PycharmProjects/sand-2024/.venv/share/jupyter/kernels/python3\n  sand-2024    /home/mancio/.local/share/jupyter/kernels/sand-2024\n```\n> [!NOTE]  \n> You can remove a kernel with the following command:\n\n```bash\njupyter kernelspec uninstall sand-2024 -y\n```\n\n## Converting the Notebook to a pdf\n\nThe notebook can be converted with the following command\n\n```bash\njupyter nbconvert --to pdf notebooks/Cortical.ipynb --LatexPreprocessor.title \"Analysis of visual cortical neurons of mice\" --LatexPreprocessor.date \"May 10, 2024\" --LatexPreprocessor.author_names \"Cristian Bargiacchi,Christian Mancini\"\n```\n\n# References\n[1] [Neurodata repository](https://neurodata.io/project/connectomes/).\n\n[2] [Mouse_visual.cortex_2](https://s3.amazonaws.com/connectome-graphs/mouse/mouse_visual.cortex_2.graphml)\n\n[3] [Network anatomy and in vivo physiology of visual cortical neurons](https://www.nature.com/articles/nature09802).
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/README.md b/README.md
+--- a/README.md	(revision ecbd89646be5090259789a5c642d836163487c3c)
++++ b/README.md	(date 1716541128043)
+@@ -111,7 +111,7 @@
+ The notebook can be converted with the following command
+ 
+ ```bash
+-jupyter nbconvert --to pdf notebooks/Cortical.ipynb --LatexPreprocessor.title "Analysis of visual cortical neurons of mice" --LatexPreprocessor.date "May 10, 2024" --LatexPreprocessor.author_names "Cristian Bargiacchi,Christian Mancini"
++jupyter nbconvert --to pdf notebooks/Cortical.ipynb --LatexPreprocessor.title "Analysis of visual cortical neurons of mice" --LatexPreprocessor.date "May, 2024" --LatexPreprocessor.author_names "Cristian Bargiacchi,Christian Mancini"
+ ```
+ 
+ # References
+Index: NetworkModels_old.Rmd
+===================================================================
+diff --git a/NetworkModels_old.Rmd b/NetworkModels_old.Rmd
+deleted file mode 100644
+--- a/NetworkModels_old.Rmd	(revision ecbd89646be5090259789a5c642d836163487c3c)
++++ /dev/null	(revision ecbd89646be5090259789a5c642d836163487c3c)
+@@ -1,331 +0,0 @@
+----
+-title: "Statistical modeling of visual cortical neurons"
+-output: pdf_document
+-author: "Cristian Bargiacchi, Christian Mancini"
+-subject: "Network Analysis"
+----
+-
+-```{r brasa-tutto, include=FALSE}
+-rm(list = ls())
+-```
+-# Preliminary steps
+-```{r import-library, message=FALSE}
+-library(igraph)
+-library(ergm)
+-```
+-
+-We will first load our data using `igraph`. Data can be found [here](https://github.com/cMancio00/sand-2024/tree/main/Data)
+-
+-```{r import-data}
+-neurons_g <- read_graph("Data/mouse_visual.cortex_2.graphml","graphml")
+-Y = as_adjacency_matrix(neurons_g, sparse = F)
+-diag(Y) = NA
+-```
+-
+-For starting the modeling we have first to convert an igraph object to a network one.
+-
+-The conversion retain the order of the nodes but we also have to pass the attributes.
+-
+-```{r data-convertion, message=FALSE, warning=FALSE}
+-neurons = network(Y, directed = T)
+-neurons %v% "type1" = vertex_attr(neurons_g,"type1",V(neurons_g))
+-neurons %v% "type2" = vertex_attr(neurons_g, "type2",V(neurons_g))
+-```
+-Now we are good to go. :rocket:
+-
+-# Homogeneous Simple Random Graph
+-
+-
+-
+-# Let's estimate the NULL model: SRG
+-# let us estimate parameters of a SRG model via the ergm function
+-# which is the sufficient statistic for theta? 
+-# y.. -> the number of observed edges
+-srg_homo  = ergm(neurons ~ edges) 
+-summary(srg_homo)
+-
+-# which information do we have? 
+-# 1) formula: recall the estimated model
+-# 2) stime con la ML classica
+-# 3) poiché questo modello corrisponde semplicemente a una regressione logistica
+-# possiamo interpretare i risultati come di consueto
+-
+-
+-# edge parameter
+-# 1) is it significant? Yes -> there is a significant difference 
+-# between Pr(Y_ij = 1) and Pr(Y_ij = 0)  
+-# That is, these quantities are significantly different from 0.5
+-# 2) sign? Negative ->  Pr(Y_ij = 1)< 0.5
+-
+-# indeed...
+-exp(coef(srg_homo))
+-# the odds of observing a relation between two randomly 
+-# selected nodes is about 99.5% lower than that of not observing it
+-
+-# indeed... 
+-edge_density(g)
+-# or
+-p.MLE = mean(Y, na.rm = T)
+-p.MLE
+-# or, via the expit function
+-exp(coef(srg_homo ))/(1+exp(coef(srg_homo )))
+-
+-
+-# -------------------------------------------
+-# let us move towards the non-homogeneous SRG
+-# -------------------------------------------
+-# which sufficient statistics for theta?
+-# n. of edges
+-# in-degrees -> receiver effects
+-# out-degrees -> sender effects
+-srg_no_homo = ergm(neurons ~ edges + sender + receiver)
+-summary(srg_no_homo)
+-
+-# how do we interpret the results? 
+-# 1) significant parameters? 
+-# 2) sign of the parameters? 
+-
+-# which model is more appropriate? 
+-BIC(srg_homo , srg_no_homo)
+-AIC(srg_homo , srg_no_homo)
+-# as expected, bic is more conservative
+-
+-# -----------------------------------------------
+-# let us now consider the dyad independence model
+-# -----------------------------------------------
+-# which sufficient statistics for theta?
+-# n. of edges
+-# in-degrees -> receiver effects
+-# out-degrees -> sender effects
+-# n. of mutual relations 
+-
+-# ! ATT -- MCMCMLE used for estimation 
+-# let us fix a seed to replicate results
+-
+-
+-p1_classic = ergm(neurons ~ edges + sender + receiver + mutual, 
+-            control = control.ergm(seed = 1)
+-
+-summary(p1_classic)
+-
+-p1_sender_ind = ergm(neurons ~ edges + receiver + mutual, control = control.ergm(seed = 1))
+-summary(p1_sender_ind)
+-p1_receiver_ind = ergm(neurons ~ edges + sender + mutual, control = control.ergm(seed = 1))
+-summary(p1_receiver_ind)
+-# many parameters not significantly different from zero
+-# let us also exclude the receiver parameter
+-p1_mutual_only = ergm(neurons ~ edges + mutual)
+-summary(p1_mutual_only)
+-# which model should we prefer? let us use the BIC
+-BIC(srg_homo , p1_sender_ind, p1_mutual_only)
+-
+-# p1_mutual_only seems the best
+-summary(p1_mutual_only)
+-# interpret the results
+-# 1) edge parameter? 
+-#    negative and significant - less ties than expected by chance
+-#    -> non-ties are more frequent than ties
+-# 2) mutuality parameter? 
+-#    positive and significant --- mutuality plays a role ->
+-#    there is a positive tendency to return ties -> 
+-#    more mutual ties than expected by chance
+-
+-# ----------------
+-# model diagnostic
+-# ----------------
+-# has the model converged?
+-mcmc.diagnostics(p1_mutual_only)
+-# Look at standard results you consider for any MCMC estimation: 
+-# well-mixed, stationary chains
+-# results look pretty ok
+-# 1) the chains explore the parameter space
+-# 2) posterior distributions are almost bell-shaped
+-
+-# If the MCMC procedure does not converge
+-# A) the model is ill-specified
+-# B) try to improve things by increasing the length of the MCMC routine
+-
+-# ---------------------------------------------
+-# let us include in the model nodal attributes
+-# ---------------------------------------------
+-# main effects 
+-# quantitative attributes -- nodecov(attr)
+-# qualitative attributes -- nodefactor(attr)
+-
+-# homophily effects
+-# quantitative attributes -- absdiff(attr) - sum_ij[abs(attr_i - attr_j)y_ij]
+-# qualititave attributes -- nodematch(attr) 
+-mod5 = ergm(neurons ~ edges + nodefactor("type1") + nodefactor("type2") + 
+-              nodematch("type1"), control = control.ergm(seed = 1)) 
+-
+-# let us look at the results
+-summary(mod5)
+-
+-
+-mod6 = ergm(neurons ~ edges + mutual+ nodefactor("type1") + nodematch("type1"), control = control.ergm(seed = 1)) 
+-summary(mod6)
+-# only the main effect plays a role, let us exclude the homophily effect
+-mod7 = ergm(neurons ~ edges + mutual + nodefactor("type1") + nodefactor("type2"), control = control.ergm(seed = 1)) 
+-summary(mod7)
+-
+-# let us build a new attribute
+-type.new = rep(0, 195)
+-type.new[vertex_attr(g,"type1") == "Characterized pyramidal neuron"] = 1
+-type.new
+-# add the attribute to the neuronswork
+-neurons %v% "type.new" = type.new
+-
+-type2.new = rep(0, 195)
+-type2.new[vertex_attr(g,"type2") == "Postsynaptic excitatory target"] = 1
+-type2.new
+-# add the attribute to the neuronswork
+-neurons %v% "type2.new" = type2.new
+-
+-
+-# estimate again the model
+-mod8 = ergm(neurons ~ edges +nodefactor("type.new") + nodefactor("type2.new"), control = control.ergm(seed = 1)) 
+-mod8.1=ergm(neurons ~ edges +nodefactor("type.new") +nodefactor("type2.new") + nodematch("type.new")+ nodematch("type2.new") , control = control.ergm(seed = 1)) 
+-mod8.2= ergm(neurons ~ edges + nodefactor("type.new") + nodematch("type.new") , control = control.ergm(seed = 1))
+-mod8.3 = ergm(neurons ~ edges + nodefactor("type1") +nodematch("type1") , control = control.ergm(seed = 1))
+-
+-summary(mod8)
+-summary(mod8.1)
+-summary(mod8.2) ## migliore per ora
+-summary(mod8.3)
+-
+-# how do we interpret results?
+-# negative and significant edges
+-# positive and significant mutuality
+-# positive and significant effect for the main effect of Dep2 
+-
+-# let us verify convergence
+-mcmc.diagnostics(mod8.2) # non fa mcmc senza mutualità
+-
+-# -------------------------------------------
+-# let us move towards the Markov graph model
+-# -------------------------------------------
+-# Let us add to the model the triangle term, the in- and the out-stars of order 2
+-# (indicating the tendency to form clusters in the neuronswork)
+-
+-mod9 = ergm(neurons ~ edges + nodefactor("type.new") + istar(2) + triangles, 
+-             control = control.ergm(seed = 1))  
+-summary(mod9)
+-
+-mod9.1 = ergm(neurons ~ edges + nodefactor("type.new") + ostar(2) + triangles, 
+-            control = control.ergm(seed = 1))  
+-
+-# the model cannot be estimated due to degeneracy issues; ad ogni iterazione viene sempre lo stesso valore
+-# non siamo in grado di stimare il modello
+-# let us try to remove triangles
+-# still, the model suffer from some estimation issues
+-
+-# let us try to solve the issue by considering the alternating k-star term
+-# --------------------------------------------------------------------------
+-# ergm implements some modified forms of such statistics
+-
+-# for undirected neuronsworks 
+-# gwdegree(decay, fixed = FALSE) -- decay = log(lambda/(lambda-1))
+-# gwdegree -- geometrically weighted degree distribution
+-
+-# for directed neuronsworks 
+-# gwidegree(decay, fixed = FALSE) -- decay = log(lambda/(lambda-1))
+-# gwodegree(decay, fixed = FALSE) -- decay = log(lambda/(lambda-1))
+-# gwidegree/gwodegree -- geometrically weighted in-/out- degree distribution
+-
+-# positive estimates -- centralized neuronswork --  few nodes with high degree
+-# negative estimates -- non centralized neuronswork
+-
+-# a standard choice for decay is 1, but model selection can be used!
+-mod10 = ergm(neurons ~ edges + triangle+ nodefactor("type.new") + gwidegree(decay = 1, fixed = TRUE), 
+-             control = control.ergm(seed = 1))
+-summary(mod10)
+-
+-mod11=ergm(neurons ~ edges + triangle+ nodefactor("type1")+ gwidegree(decay = 1, fixed = TRUE), 
+-             control = control.ergm(seed = 1))
+-summary(mod11)
+-
+-mod12 = ergm(neurons ~ edges + triangle + nodefactor("type.new") + gwodegree(decay = 1, fixed = TRUE), 
+-             control = control.ergm(seed = 1))
+-summary(mod12)
+-
+-mod13 = ergm(neurons ~ edges + triangle + nodefactor("type.new") + gwidegree(decay = 1, fixed = TRUE)
+-             + gwodegree(decay = 1, fixed = TRUE), 
+-             control = control.ergm(seed = 1))
+-summary(mod13)
+-# again, the model cannot be estimated
+-
+-# ----------------------------------------
+-# let us consider the social circuit model 
+-# ----------------------------------------
+-# alternating k-triangles --> gwesp(decay = 0, fixed = FALSE) 
+-# geometrically weighted edge-wise shared partners
+-# the corresponding parameter expresses the tendency for tied nodes 
+-# to have multiple shared partners
+-
+-# alternating k-2-paths --> gwdsp(decay = 0, fixed = FALSE)
+-# geometrically weighted dyad-wise shared partners
+-# the corresponding parameter expresses the tendency for dyads 
+-# (whether tied or not) to have multiple shared partners
+-
+-mod14 = ergm(neurons ~ edges + nodefactor("type.new") + 
+-               gwesp(decay = 1, fixed = T) + 
+-                gwdsp(decay = 1, fixed = T), control = control.ergm(seed=1))
+-summary(mod14)
+-
+-# non converge
+-# let us remove the gwesp term
+-mod15 = ergm(neurons ~ edges + nodefactor("type.new") + 
+-               gwdsp(decay = 1,fixed = T), control = control.ergm(seed=1))
+-summary(mod15)
+-
+-
+-# how can we interpret the parameters?
+-# 1) the edge parameter is not significantly different from zero, even though it is negative 
+-#    --> given the effects in the mode, ties and non-ties are equally likely
+-# 2) the mutuality parameter is significantly different from zero and is positive
+-#   --> positive tendency to return ties in the neuronswork
+-# 3) the parameter associated to the nodal attribute is significant and positive
+-#   --> nodes in department 2 are more active than others
+-# 3) the gwdsp parameter is significant and negative
+-#    -> lower tendency to form clusters than that expected by chance
+-
+-# check convergence
+-win.graph()
+-mcmc.diagnostics(srg_no_homo4)
+-
+-
+-# still look at model selection via BIC
+-BIC(srg_homo ,srg_no_homo,p1_mutual_only,mod5,mod6,mod7,mod8) ## aggiorna
+-# srg_no_homo4 seems to be the optimal choice
+-
+-# let us evaluate the goodness of fit
+-# ----------------------------------
+-# simulate from the model
+-sim = simulate(srg_no_homo4, nsim = 100, verbose = TRUE, seed = 1)
+-
+-# let us assume we want to verify whether the model is appropriate to represent the degree and the 
+-# transitivity in the neuronswork
+-
+-#install.packages("intergraph")
+-library(intergraph)
+-?asIgraph
+-
+-fnc = function(xx){
+-  ig = asIgraph(xx)
+-  tr = transitivity(ig)
+-  ideg = sd(degree(ig, mode = "in"))
+-  odeg = sd(degree(ig, mode = "out"))
+-  return(c(tr, ideg, odeg))
+-}
+-
+-null.distr = matrix(,100,3)
+-for(b in 1:100){
+-  null.distr[b,]  = fnc(sim[[b]])
+-}
+-dev.new()
+-par(mfrow = c(3,1))
+-hist(unlist(null.distr[,1]), xlab = "transitivity"); abline(v = transitivity(friend), col = "red")
+-hist(unlist(null.distr[,2]), xlab = "in-degree"); abline(v = sd(degree(friend, mode = "in")), col = "red")
+-hist(unlist(null.distr[,3]), xlab = "out-degree"); abline(v = sd(degree(friend, mode = "out")), col = "red")
+-
+-
+Index: NetworkModels.Rmd
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>---\ntitle: \"Statistical modeling of visual cortical neurons\"\noutput: pdf_document\nauthor: \"Cristian Bargiacchi, Christian Mancini\"\ndate: \"`r format(Sys.time(), '%d %B %Y')`\" \nsubject: \"Network Analysis\"\n---\n\n```{r, include=FALSE, eval=FALSE}\nlibrary(rmarkdown)\nrender(\"NetworkModels.Rmd\", output_format = \"pdf_document\")\n```\n\n```{r include=FALSE}\nknitr::opts_chunk$set(comment = NA)\n```\n\n```{r brasa-tutto, include=FALSE}\nrm(list = ls())\n```\n\n# Preliminary steps\n\n```{r import-library, message=FALSE}\nlibrary(igraph)\nlibrary(ergm)\nlibrary(intergraph)\n```\n\nWe first need to load our data using `igraph`. Data can be found [here](https://github.com/cMancio00/sand-2024/tree/main/Data)\n\n```{r import-data}\nneurons_g <- read_graph(\"Data/mouse_visual.cortex_2.graphml\",\"graphml\")\nY = as_adjacency_matrix(neurons_g, sparse = F)\ndiag(Y) = NA\n```\n\nFor starting the modeling we first have to convert an igraph object to a network one.\n\nThe conversion retains the order of the nodes but we also have to pass the attributes.\n\n```{r data-convertion, message=FALSE, warning=FALSE}\nneurons = network(Y, directed = T)\nneurons %v% \"type1\" = vertex_attr(neurons_g,\"type1\",V(neurons_g))\nneurons %v% \"type2\" = vertex_attr(neurons_g, \"type2\",V(neurons_g))\n```\n\nNow we are good to go!\n\n# Homogeneous Simple Random Graph\n\nLet's start with the simplest model.\n\n**Assumptions**:\n\n-   The probability of forming a tie is the **same** for every pair.\n\n```{r message=FALSE, results=FALSE}\nsrg_homo = ergm(neurons ~ edges) \n```\n\n```{r}\nsummary(srg_homo)\n```\n\nThis model corresponds to a logistic regression, so we can interpret the result as odds:\n\n```{r include=FALSE}\nodds = exp(srg_homo$coefficients)\n```\n\n> The odds of observing a relation between two randomly selected nodes is about `r sprintf(\"%.2f\", (1-odds)*100)`% lower than that of not observing it.\n\n# Non-Homogeneous Simple Random Graph\n\n**Assumptions**:\n\n-   The same probability of forming a tie is relaxed.\n-   Takes in consideration sender and receiver effect\n\n> Since some node do not have in or out degree, those parameter will be set to `-inf`, so the model can't be used, but it can be estimated.\n\n```{r message=FALSE, results=FALSE, eval=FALSE}\nsrg_no_homo = ergm(neurons ~ edges + sender + receiver,\n                   control = control)\n```\n\n# Dyad independence model\n\n**Assumptions**:\n\n-   Dyads are independents and follows a *Multinomial* distribution\n-   We take in consideration the reciprocity parameter $\\gamma_{ij}$ (*mutual*)\n\n## Classic p1 model\n\n**Assumptions**:\n\n-   the reciprocity parameter is $\\gamma =\\gamma_{ij}$\n-   $\\mu_{ij}$ depends additively from on the sender and receiver effect of node $i$ and $j$ involved.\n\n```{r message=FALSE, warning=FALSE, results=FALSE, eval=FALSE}\np1_classic = ergm(neurons ~ edges + sender + receiver + mutual,\n                  control = control.ergm(seed = 1))\n```\n\n## Sender and reciver independency assumption\n\nWe now construct 3 p1 model to check for *reciprocity* with the following assumptions:\n\n1.  Sender effect independent\n2.  Receiver effect independent\n3.  Sender and receiver effect independent (equals to non-homogeneous SRG)\n\n> For the same reasons explained in the non-homogeneous SRG, these models can't be estimated. The coefficients are set to `-inf`.\n\n```{r message=FALSE, results=FALSE, eval=FALSE}\np1_sender_ind = ergm(neurons ~ edges + receiver + mutual,\n                     control = control.ergm(seed = 1))\n```\n\n```{r message=FALSE, results=FALSE, eval=FALSE}\np1_receiver_ind = ergm(neurons ~ edges + sender + mutual,\n                       control = control.ergm(seed = 1))\n```\n\n```{r message=FALSE, results=FALSE, eval=FALSE}\np1_mutual_only = ergm(neurons ~ edges + mutual,\n                      control = control.ergm(seed = 1))\n```\n\nAt this point we can just relay on the SRG. The next step is to include nodal attributes and exploit the background knowledge that we have of this network. We want to exploit the starts that are cleary visible in the network. Let's do one step at a time.\n\n# Nodal attributes\n\nIn this part of the analysis we include nodal attributes to explore *homophily* and *main* effects.\n\n-   **Main effect**: Nodes of a specific type have more chance to form ties\n\n-   **Homophily effect** Nodes of a specific type have more chance to form ties between nodes of the same type\n\n> As saw in the descriptive analysis we expect to observe dissortative mixing.\n\nSince we only have categorical attributes we will use:\n\n-   `nodefactor()` to include main effect\n-   `nodematch()` to include homophily effect\n\nLet's explore \"*type1*\" nodal attribute.\n\n```{r message=FALSE, results=FALSE}\nmain_homo_type_one = ergm(neurons ~ edges + nodefactor(\"type1\") + nodematch(\"type1\"), \n            control = control.ergm(seed = 1)) \n\n```\n\n```{r}\nsummary(main_homo_type_one)\n```\n\nAs we expect, the *Dissortative mixing* is captured. The probability of forming ties with nodes of the same type is `r sprintf(\"%.2f\", (1-(exp(-4.10482)))*100)`% lower, with respect to probability of forming ties with different one. Moreover, \"*Characterized pyramidal neuron*\" have more chances to form ties (which is true because they start the synapses). More precisely, the odds is `r sprintf(\"%.2f\", exp(4.12940))` times higher respect to a \"*Cell body in EM volume*\".\n\nNow we use *\"type2\"* attribute, but only as main effect, and we remove `mutual` since it is estimated as `-inf`.\n\n> We exclude homophily, since all the coefficents will result non significants.\n\n```{r message=FALSE, results=FALSE}\nmain_type_two = ergm(neurons ~ edges + nodefactor(\"type2\"),\n            control = control.ergm(seed = 1)) \n```\n\n```{r}\nsummary(main_type_two)\n```\n\nWe basically got the same conclusions. Since the reference is \"*NA*\" which can only be \"*Characterized pyramidal neuron*\", the odds of form a tie are smaller if a node is \"*excitatory*\" or \"*inhibitory*\".\n\nLet's now put all together:\n\n```{r message=FALSE, results=FALSE}\nmain_homo = ergm(neurons ~ edges + nodefactor(\"type1\") + nodefactor(\"type2\") \n                 + nodematch(\"type1\"), \n            control = control.ergm(seed = 1)) \n```\n```{r}\nsummary(main_homo)\n```\nWe can see that the main effect of being a *Dendritic fragment* is not significant, so the tendency to form more ties than by chance depends only of being a *Characterized pyramidal neuron* or not. This is a good thing, since it reflect our descriptive analysis. \n\nWe can now compare BIC for these models including nodal attributes.\n\n```{r include=FALSE}\nbic_main_homo_type_one <- sprintf(\"%.2f\", BIC(main_homo_type_one))\nbic_main_type_two <- sprintf(\"%.2f\", BIC(main_type_two))\nbic_main_homo <- sprintf(\"%.2f\", BIC(main_homo))\n```\n\n| Model              | BIC                        |\n|--------------------|----------------------------|\n| main_Homo_Type_One | `r bic_main_homo_type_one` |\n| main_Type_Two      | `r bic_main_type_two`      |\n| main_Homo          | `r bic_main_homo`          |\n\nAccording to `BIC` the full model is better.\n\n# Nodal attributes (Binary)\n\nLet's repeat the above analysis but using new attributes which are the binarization of the real ones.\n\nAs reference category we choose \"*Characterized pyramidal neuron*\" (for *type1*) and \"*Postsynaptic excitatory target*\" (for *type2*).\n\nGenerate the new attributes:\n\n```{r message=FALSE, results=FALSE}\ntype1.new = rep(0, 195)\ntype1.new[vertex_attr(neurons_g,\"type1\") == \"Characterized pyramidal neuron\"] = 1\ntype1.new\nneurons %v% \"type1.new\" = type1.new\n\ntype2.new = rep(0, 195)\ntype2.new[vertex_attr(neurons_g,\"type2\") == \"Postsynaptic excitatory target\"] = 1\ntype2.new\nneurons %v% \"type2.new\" = type2.new\n```\n\nEstimate all the models again:\n\n```{r message=FALSE, results=FALSE}\nmain_homo_type_one_binary = ergm(neurons ~ edges + nodefactor(\"type1.new\") \n                                 + nodematch(\"type1.new\"), \n            control = control.ergm(seed = 1))\n\nmain_type_two_binary = ergm(neurons ~ edges + nodefactor(\"type2.new\"),\n            control = control.ergm(seed = 1))\n\nmain_homo_binary = ergm(neurons ~ edges + nodefactor(\"type1.new\") \n                        + nodefactor(\"type2.new\") + nodematch(\"type1.new\"), \n            control = control.ergm(seed = 1)) \n```\n\n```{r include=FALSE}\nbic_main_homo_type_one_binary <- sprintf(\"%.2f\", BIC(main_homo_type_one_binary))\nbic_main_type_two_binary <- sprintf(\"%.2f\", BIC(main_type_two_binary))\nbic_main_homo_binary <- sprintf(\"%.2f\", BIC(main_homo_binary))\n```\n\n| Model                     | BIC                               |\n|---------------------------|-----------------------------------|\n| main_homo_type_one_binary | `r bic_main_homo_type_one_binary` |\n| main_type_two_binary      | `r bic_main_type_two_binary`      |\n| main_homo_binary          | `r bic_main_homo_binary`          |\n\nAccording to `BIC` the new model with just \"*type1.new*\" is the best for now with a score of `r sprintf(\"%.2f\", BIC(main_homo_type_one_binary))`.\n\nLet's explore the summary of the model\n\n```{r}\nsummary(main_homo_type_one_binary)\n```\n\nAs we can see every parameter is significant. The interpretation is the same as before.\n\n# Markov Model\n\nWe move in the direction of including stars. Given the best model until now, we add parameters.\n\nWe add the `instar(2)` and `triangles` parameter. Unfortunately, `ostar(2)` can't be used due to model degeneracy.\n\n```{r message=FALSE, warning=FALSE}\nmarkov = ergm(neurons ~ edges + nodefactor(\"type1.new\") + \n              nodematch(\"type1.new\") + istar(2) + triangles, \n             control = control.ergm(seed = 1))  \n```\n```{r}\nsummary(markov)\n```\nLet's tweak this model a bit. We know that no triangles are present in the network, so we remove it and see if `BIC` improves. We also take in consideration `nodefactor(\"type2.new\")`.\n\n```{r message=FALSE, warning=FALSE}\nmarkov_no_triangles = ergm(neurons ~ edges + nodefactor(\"type1.new\") \n                           + nodematch(\"type1.new\") + nodefactor(\"type2.new\") + istar(2), \n             control = control.ergm(seed = 1))\n```\n\n```{r}\nsummary(markov_no_triangles)\n```\n\nThe result of basic Markov models are summarized in the table below.\n\n```{r include=FALSE}\nbic_markov <- sprintf(\"%.2f\", BIC(markov))\nbic_markov_no_triangles <- sprintf(\"%.2f\", BIC(markov_no_triangles))\n\n```\n\n| Model                     | BIC                               |\n|---------------------------|-----------------------------------|\n| markov                    | `r bic_markov`                    |\n| markov_no_triangles       | `r bic_markov_no_triangles`       |\n\n# Markov with alternating k_stars\n\nSince we want to exploit the stars in the graph, a solution is using the \"*alternating k_stars*\".\nWe are not interest in \"*alternating k-paths*\" since they are not observed in the network.\n\n> Maybe what follows is a little cheating or inaccurate, but the only way to let the estimation end is using a *Stochastic-Approximation*.\n\n```{r message=FALSE, warning=FALSE}\nk_star = ergm(neurons ~ edges + nodefactor(\"type1.new\") + nodefactor(\"type2.new\") \n              + nodematch(\"type1.new\") + gwidegree(decay = 1, fixed = TRUE) \n              + gwodegree(decay = 1, fixed = TRUE) ,\n             control = control.ergm(seed = 1, main.method = \"Stochastic-Approximation\"))\n```\n```{r}\nsummary(k_star)\n```\nThis is the best model we can get.\n\n# Social Circuits\n\nWe also propose a social circuit model, but it has worst fit with respect to the previus models.\nwe quote it anyway for completeness.\n\n```{r message=FALSE, warning=FALSE}\nsocial = ergm(neurons ~ edges + nodefactor(\"type1.new\") + nodefactor(\"type2.new\") \n             + nodematch(\"type1.new\") + gwdsp(decay = 1, fixed = T),\n             control = control.ergm(seed=1, main.method = \"Stochastic-Approximation\" ))\n```\n```{r}\nsummary(social)\n```\n\n# Recap of models\n\nTo recap the performances of models the best ones are `markov_no_triangles` and `k_star` (which is however estimated with a stochastic approach).\n\nThe table below recap the goodness of fit of the best models compared to the homogeneous SRG.\n\n```{r include=FALSE}\nbic_srg_homo <- sprintf(\"%.2f\", BIC(srg_homo))\nbic_k_star <- sprintf(\"%.2f\", BIC(k_star))\n```\n\n| Model                     | BIC                               |\n|---------------------------|-----------------------------------|\n| srg_homo                  | `r bic_srg_homo`                  |\n| markov_no_triangles       | `r bic_markov_no_triangles`       |\n| k_star                    | `r bic_k_star`                    |\n\n# Simulazione\n\nNow that we have chosen the two best models, we can test them in a simulation to see if they can model the network. The reference will be the performance of the homogeneous simple random graph. \n\n```{r message=FALSE, warning=FALSE}\nnsim=100\nsim_srg = simulate(srg_homo, nsim = nsim, verbose = TRUE, seed = 1)\nsim_markov_no_triangles = simulate(k_star, nsim = nsim, verbose = TRUE, seed = 1)\nsim_k_star = simulate(k_star, nsim = nsim, verbose = TRUE, seed = 1)\n```\n```{r message=FALSE, warning=FALSE}\nfnc = function(xx){\n  ig = asIgraph(xx)\n  tr = transitivity(ig)\n  ideg = sd(degree(ig, mode = \"in\"))\n  odeg = sd(degree(ig, mode = \"out\"))\n  return(c(tr, ideg, odeg))\n}\n\nnull.distr.srg = matrix(,nsim,3)\nnull.distr.markov_no_triangles = matrix(,nsim,3)\nnull.distr.k_star = matrix(,nsim,3)\nfor(b in 1:nsim){\n  null.distr.srg[b,]  = fnc(sim_srg[[b]])\n  null.distr.markov_no_triangles[b,]  = fnc(sim_markov_no_triangles[[b]])\n  null.distr.k_star[b,]  = fnc(sim_k_star[[b]])\n}\n```\n\n## SRG simulation\n```{r}\ndev.new()\npar(mfrow = c(3,1))\nhist(unlist(null.distr.srg[,1]), xlab = \"transitivity\");\nabline(v = transitivity(neurons_g), col = \"red\")\nhist(unlist(null.distr.srg[,2]), xlim = c(0.25,1.25),xlab = \"in-degree\");\nabline(v = sd(degree(neurons_g, mode = \"in\")), col = \"red\")\nhist(unlist(null.distr.srg[,3]), xlim = c(1,5.25),xlab = \"out-degree\");\nabline(v = sd(degree(neurons_g, mode = \"out\")), col = \"red\")\n\n```\n## Markov without triangles simulation\n```{r}\ndev.new()\npar(mfrow = c(3,1))\nhist(unlist(null.distr.markov_no_triangles[,1]), xlab = \"transitivity\");\nabline(v = transitivity(neurons_g), col = \"red\")\nhist(unlist(null.distr.markov_no_triangles[,2]), xlab = \"in-degree\");\nabline(v = sd(degree(neurons_g, mode = \"in\")), col = \"red\")\nhist(unlist(null.distr.markov_no_triangles[,3]),\n     xlim = c(4,5.25),xlab = \"out-degree\");\nabline(v = sd(degree(neurons_g, mode = \"out\")), col = \"red\")\n```\n\n## Alternating k-stars simulation\n```{r fig.show=\"hold\", out.width=\"50%\", fig.cap=\"prova cap\"}\ndev.new()\npar(mfrow = c(3,1))\nhist(unlist(null.distr.k_star[,1]), xlab = \"transitivity\");\nabline(v = transitivity(neurons_g), col = \"red\")\nhist(unlist(null.distr.k_star[,2]), xlab = \"in-degree\");\nabline(v = sd(degree(neurons_g, mode = \"in\")), col = \"red\")\nhist(unlist(null.distr.k_star[,3]), xlim = c(4,5.25),xlab = \"out-degree\");\nabline(v = sd(degree(neurons_g, mode = \"out\")), col = \"red\")\n```\n\n# Conclusions from model simulations\n\nWe can see a marked improvement over the SRG. We are able to model transitivity and in degree. Unfortunately, we still cannot model the outgoing degree (the stars) with the estimated models. We can however be satisfied with the closeness of the estimate. As far as the choice of model is concerned, having similar performance, we prefer the Markov model without triangles because it was estimated using the MCMC procedure.
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/NetworkModels.Rmd b/NetworkModels.Rmd
+--- a/NetworkModels.Rmd	(revision ecbd89646be5090259789a5c642d836163487c3c)
++++ b/NetworkModels.Rmd	(date 1716470309263)
+@@ -25,6 +25,8 @@
+ library(igraph)
+ library(ergm)
+ library(intergraph)
++library(sbm)
++library(ggplot2)
+ ```
+ 
+ We first need to load our data using `igraph`. Data can be found [here](https://github.com/cMancio00/sand-2024/tree/main/Data)

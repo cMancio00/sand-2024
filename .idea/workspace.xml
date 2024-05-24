@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="92e53448-e00e-42ef-a197-a304366402bc" name="Changes" comment="Notebook conversion command">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DescriptiveStatistics.R" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NetworkModels.Rmd" beforeDir="false" afterPath="$PROJECT_DIR$/NetworkModels.Rmd" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NetworkModels_old.Rmd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/presentation.md" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="pdf-fixes" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;cMancio00&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;git@github.com:cMancio00/sand-2024.git&quot;,
+    &quot;accountId&quot;: &quot;8955b638-ee3b-4c33-ac32-6dd28ea5fc86&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2gGeXPQ5VsDd2o42PN1Lb5z24ZS" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;statistical-models&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/mancio/PycharmProjects&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-0509580d9d50-28c9f5db9ffe-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.14494.241" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Added Density statistic&#10;&#10;Added density and fixed some of the broken links" />
+    <MESSAGE value="Added Reciprocity statistic&#10;&#10;Added reciprocity" />
+    <MESSAGE value="Added Transitivity statistic&#10;&#10;Added transitivity" />
+    <MESSAGE value="Added Modularity statistic&#10;&#10;Added modularity" />
+    <MESSAGE value="Added summary of network statistics" />
+    <MESSAGE value="Fixed some rendering issue" />
+    <MESSAGE value="Created Centralization index module&#10;&#10;Created the function degree centralization" />
+    <MESSAGE value="Centrality mesures setup" />
+    <MESSAGE value="Deleted ERGM module" />
+    <MESSAGE value="Deleted Statistical Models part&#10;&#10;Models will not be done in python, so it is not needed for the moment" />
+    <MESSAGE value="Degree Centrality&#10;&#10;Added degree centrality and centralization index.&#10;Also added a dataframe to store all the centralization measurements" />
+    <MESSAGE value="Fix dataframe plot" />
+    <MESSAGE value="Just added the code to centralization" />
+    <MESSAGE value="Fixed paragraph indentation" />
+    <MESSAGE value="Fixed wrong emphasis" />
+    <MESSAGE value="Finished Nodal statistics" />
+    <MESSAGE value="Remove unneeded cells&#10;&#10;Removed cells to simplify the description and added the pdf on git" />
+    <MESSAGE value="Notebook conversion command" />
+    <option name="LAST_COMMIT_MESSAGE" value="Notebook conversion command" />
+  </component>
+</project>
