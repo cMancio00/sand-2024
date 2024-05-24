@@ -393,12 +393,10 @@ abline(v = sd(degree(neurons_g, mode = "out")), col = "red")
 ## Markov without triangles simulation
 ```{r}
 dev.new()
-par(mfrow = c(3,1))
-hist(unlist(null.distr.markov_no_triangles[,1]), xlab = "transitivity");
-abline(v = transitivity(neurons_g), col = "red")
-hist(unlist(null.distr.markov_no_triangles[,2]), xlab = "in-degree");
+par(mfrow = c(1,2))
+hist(unlist(null.distr.markov_no_triangles[,2]),main="In-Degree SD", xlab = "in-degree");
 abline(v = sd(degree(neurons_g, mode = "in")), col = "red")
-hist(unlist(null.distr.markov_no_triangles[,3]),
+hist(unlist(null.distr.markov_no_triangles[,3]),main="Out-Degree SD",
      xlim = c(4,5.25),xlab = "out-degree");
 abline(v = sd(degree(neurons_g, mode = "out")), col = "red")
 ```
