@@ -111,7 +111,7 @@ jupyter kernelspec uninstall sand-2024 -y
 The notebook can be converted with the following command
 
 ```bash
-jupyter nbconvert --to pdf notebooks/Cortical.ipynb --LatexPreprocessor.title "Analysis of visual cortical neurons of mice" --LatexPreprocessor.date "May 10, 2024" --LatexPreprocessor.author_names "Cristian Bargiacchi,Christian Mancini"
+jupyter nbconvert --to pdf notebooks/Cortical.ipynb --LatexPreprocessor.title "Analysis of visual cortical neurons of mice" --LatexPreprocessor.date "May, 2024" --LatexPreprocessor.author_names "Cristian Bargiacchi,Christian Mancini"
 ```
 
 # References
