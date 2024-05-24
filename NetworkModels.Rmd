@@ -2,7 +2,7 @@
 title: "Statistical modeling of visual cortical neurons"
 output: pdf_document
 author: "Cristian Bargiacchi, Christian Mancini"
-date: "`r format(Sys.time(), '%d %B %Y')`" 
+date: "`r format(Sys.time(), '%B %Y')`" 
 subject: "Network Analysis"
 ---
 
@@ -25,7 +25,6 @@ rm(list = ls())
 library(igraph)
 library(ergm)
 library(intergraph)
-library(sbm)
 library(ggplot2)
 ```
 
@@ -419,72 +418,3 @@ abline(v = sd(degree(neurons_g, mode = "out")), col = "red")
 # Conclusions from model simulations
 
 We can see a marked improvement over the SRG. We are able to model transitivity and in degree. Unfortunately, we still cannot model the outgoing degree (the stars) with the estimated models. We can however be satisfied with the closeness of the estimate. As far as the choice of model is concerned, having similar performance, we prefer the Markov model without triangles because it was estimated using the MCMC procedure.
-
-# SBM
-## Preliminary steps
-
-We start by making an undirected version of our graph to work with. 
-
-```{r message=FALSE, warning=FALSE}
-neurons_g_undirected <- as.undirected(neurons_g, mode="collapse" )
-Y_undirected = as_adjacency_matrix(neurons_g_undirected, sparse = F)
-```
-
-```{r eval=FALSE, include=FALSE}
-plotMyMatrix(Y_undirected, dimLabels = list(row = 'neurons', col = 'neurons'))
-```
-![adjacency]("Plots/SBM/adjacency.jpg")
-
-## Bernoulli
-```{r}
-sbm1 = estimateSimpleSBM(Y_undirected, "bernoulli", dimLabels = 'neurons', 
-                         estimOptions = list(verbosity = 1))
-```
-```{r}
-sbm1
-sbm1$nbBlocks; sbm1$blockProp; round(sbm1$connectParam$mean,3)
-plot(sbm1, type = "data") ## stessa matrice di adiacenza vista prima, però shifta righe e colonne per mettere vicini nodi dello stesso gruppo
-# nodes are ordered wrt to the block they belong to and blocks are highlighted
-plot(sbm1, type = "expected")
-# fitted connection probabilities
-plot(sbm1, type = "meso")
-# fitted connection probabilities 
-
-# info on all estimated model is given in 
-sbm1$storedModels
-
-sbm1$memberships
-
-plot(neurons_g_undirected, vertex.color = sbm1$memberships)
-```
-
-## Poisson
-```{r}
-sbm2 = estimateSimpleSBM(Y_undirected, "poisson", dimLabels = 'neurons', 
-                         estimOptions = list(verbosity = 1))
-
-sbm2
-
-
-
-# selected number of blocks
-sbm2$nbBlocks
-# prior block probabilities
-sbm2$blockProp
-# connectivity parameters
-round(sbm2$connectParam$mean,3)
-#diag principale prob di osservare link intragruppo, outofdiag sono le prob di oss link tra membri di quei gruppi
-
-
-# Let us graphically represent the data matrix 
-# reordering rows and cols according to the estimated block in the SBM
-
-plot(sbm2, type = "data", dimLabels = list(row = 'neurons', col= 'neurons'))
-
-# or the average number of connections between neuronss
-plot(sbm2, type = "expected", dimLabels = list(row = 'neurons', col= 'neurons'))
-
-# or 
-plot(sbm2, type = "meso", dimLabels = list(row = 'neurons', col= 'neurons'))
-
-```
