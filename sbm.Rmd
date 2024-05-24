@@ -5,27 +5,62 @@ author: "Cristian Bargiacchi, Christian Mancini"
 date: "`r format(Sys.time(), '%B %Y')`" 
 subject: "Network Analysis"
 ---
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(sbm)
+library(igraph)
+library(intergraph)
+```
 
 ```{r include=FALSE}
 knitr::opts_chunk$set(comment = NA)
 ```
+# SBM
 
-## R Markdown
+We try to investigate the presence of latent variable with clusters in order to explain probability of connections between groups. 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+## Preliminary steps
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+We start by making an undirected version of our graph to work with. 
 
-```{r cars}
-summary(cars)
+```{r import-data}
+neurons_g <- read_graph("Data/mouse_visual.cortex_2.graphml","graphml")
+Y = as_adjacency_matrix(neurons_g, sparse = F)
+diag(Y) = NA
+neurons_g_undirected <- as.undirected(neurons_g, mode="collapse" )
+Y_undirected = as_adjacency_matrix(neurons_g_undirected, sparse = F)
 ```
 
-## Including Plots
+Below we have a visual rappresentation of the adjacency matrix. 
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r  fig.keep='last', fig.show='hold', message=FALSE, warning=FALSE}
+plotMyMatrix(Y_undirected, dimLabels = list(row = 'neurons', col = 'neurons'))
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+We can clearly see that our network is sparse, and only the first neurons are involved in synapsis. 
+
+## Bernoulli
+
+We try to fit a Stochastic Blockmodel. According to assumptions of this model, observed links are governed by the membership of a node in a certain block. 
+
+> Number of blocks and membership of nodes are unknown.
+
+Since we have unweighted connections, we can assume a Bernoulli distribution for the tie-variable.
+
+```{r fig.keep='last', fig.show='hold', message=FALSE, warning=FALSE, comment=NA}
+sbm1 = estimateSimpleSBM(Y_undirected, "bernoulli", dimLabels = 'neurons', 
+                         estimOptions = list(verbosity = 1))
+```
+```{r fig.keep='last', fig.show='hold', message=FALSE, warning=FALSE}
+sbm1$nbBlocks; sbm1$blockProp; round(sbm1$connectParam$mean,3)
+plot(sbm1, type = "meso")
+```
+
+We can observe a big cluster with respect to other two ones, so we plot the true graph to check which are neurons in each block.
+
+```{r fig.keep='last', fig.show='hold', message=FALSE, warning=FALSE}
+plot(neurons_g_undirected, vertex.size=10,vertex.label=NA,vertex.color = sbm1$memberships)
+```
+We can see that the biggest cluster is made by target neurons and the first and second block are composed both by all pyramidal neurons. 
+According to our background knowledge, connections between pairs of neurons are indeed regulated by a group membership, in sense that we observe a tie only between nodes of different type. However, this group membership is not unobserved, but completely observed. 
+In conclusion, SBM does not bring more informations to our analysis.
+
