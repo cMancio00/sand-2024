@@ -1,9 +1,11 @@
 ---
 title: "Statistical modeling of visual cortical neurons"
-output: pdf_document
 author: "Cristian Bargiacchi, Christian Mancini"
 date: "`r format(Sys.time(), '%B %Y')`" 
 subject: "Network Analysis"
+output: 
+  pdf_document:
+    extra_dependencies: ["float"]
 ---
 
 ```{r, include=FALSE, eval=FALSE}
@@ -13,6 +15,7 @@ render("NetworkModels.Rmd", output_format = "pdf_document")
 
 ```{r include=FALSE}
 knitr::opts_chunk$set(comment = NA)
+knitr::opts_chunk$set(fig.pos = "H", out.extra = "")
 ```
 
 ```{r brasa-tutto, include=FALSE}
@@ -62,6 +65,10 @@ srg_homo = ergm(neurons ~ edges)
 
 ```{r}
 summary(srg_homo)
+```
+
+```{r message=FALSE}
+bic_srg_homo <- sprintf("%.2f", BIC(srg_homo))
 ```
 
 This model corresponds to a logistic regression, so we can interpret the result as odds:
@@ -202,6 +209,8 @@ bic_main_homo <- sprintf("%.2f", BIC(main_homo))
 | main_Type_Two      | `r bic_main_type_two`      |
 | main_Homo          | `r bic_main_homo`          |
 
+: BIC of P1 models
+
 According to `BIC` the full model is better.
 
 # Nodal attributes (Binary)
@@ -250,6 +259,8 @@ bic_main_homo_binary <- sprintf("%.2f", BIC(main_homo_binary))
 | main_homo_type_one_binary | `r bic_main_homo_type_one_binary` |
 | main_type_two_binary      | `r bic_main_type_two_binary`      |
 | main_homo_binary          | `r bic_main_homo_binary`          |
+
+: BIC of P1 models with binarized attributes
 
 According to `BIC` the new model with just "*type1.new*" is the best for now with a score of `r sprintf("%.2f", BIC(main_homo_type_one_binary))`.
 
@@ -300,6 +311,8 @@ bic_markov_no_triangles <- sprintf("%.2f", BIC(markov_no_triangles))
 | markov                    | `r bic_markov`                    |
 | markov_no_triangles       | `r bic_markov_no_triangles`       |
 
+: BIC of Markov models
+
 # Markov with alternating k_stars
 
 Since we want to exploit the stars in the graph, a solution is using the "*alternating k_stars*".
@@ -332,6 +345,10 @@ social = ergm(neurons ~ edges + nodefactor("type1.new") + nodefactor("type2.new"
 summary(social)
 ```
 
+```{r include=FALSE}
+bic_social <- sprintf("%.2f", BIC(social))
+```
+
 # Recap of models
 
 To recap the performances of models the best ones are `markov_no_triangles` and `k_star` (which is however estimated with a stochastic approach).
@@ -348,6 +365,28 @@ bic_k_star <- sprintf("%.2f", BIC(k_star))
 | srg_homo                  | `r bic_srg_homo`                  |
 | markov_no_triangles       | `r bic_markov_no_triangles`       |
 | k_star                    | `r bic_k_star`                    |
+
+: Best models vs SRG (according to BIC)
+
+## BIC summary table
+
+| Model                     | BIC                               | Estimation |
+|---------------------------|-----------------------------------|------------|
+| srg_homo                  | `r bic_srg_homo`                  | MCMC       |
+| main_Homo_Type_One        | `r bic_main_homo_type_one`        | MCMC       |
+| main_Type_Two             | `r bic_main_type_two`             | MCMC       |
+| main_Homo                 | `r bic_main_homo`                 | MCMC       |
+| main_homo_type_one_binary | `r bic_main_homo_type_one_binary` | MCMC       |
+| main_type_two_binary      | `r bic_main_type_two_binary`      | MCMC       |
+| main_homo_binary          | `r bic_main_homo_binary`          | MCMC       |
+| main_homo_type_one_binary | `r bic_main_homo_type_one_binary` | MCMC       |
+| main_type_two_binary      | `r bic_main_type_two_binary`      | MCMC       |
+| main_homo_binary          | `r bic_main_homo_binary`          | MCMC       |
+| markov_no_triangles       | `r bic_markov_no_triangles`       | MCMC       |
+| k_star                    | `r bic_k_star`                    | Stochastic |
+| social                    | `r bic_social`                    | Stochastic |
+
+: Summary BIC table
 
 # Simulazione
 
@@ -379,41 +418,66 @@ for(b in 1:nsim){
 ```
 
 ## SRG simulation
-```{r}
+```{r eval=FALSE, message=FALSE, warning=FALSE}
 dev.new()
-par(mfrow = c(3,1))
-hist(unlist(null.distr.srg[,1]), xlab = "transitivity");
-abline(v = transitivity(neurons_g), col = "red")
-hist(unlist(null.distr.srg[,2]), xlim = c(0.25,1.25),xlab = "in-degree");
+png(file="Plots/Simulation/SRG.png")
+par(mfrow = c(1,2))
+hist(unlist(null.distr.srg[,2]),main="In-Degree SD", xlim = c(0.25,1.25),
+     xlab = "in-degree");
 abline(v = sd(degree(neurons_g, mode = "in")), col = "red")
-hist(unlist(null.distr.srg[,3]), xlim = c(1,5.25),xlab = "out-degree");
+
+hist(unlist(null.distr.srg[,3]), xlim = c(1,5.25),main="Out-Degree SD",
+     xlab = "out-degree");
 abline(v = sd(degree(neurons_g, mode = "out")), col = "red")
 
+mtext("SRG",
+      side = 3,
+      line = - 1,
+      outer = TRUE)
+dev.off()
 ```
+![SRG simulation](Plots/Simulation/SRG.png){width=50%}
+
 ## Markov without triangles simulation
-```{r}
+```{r eval=FALSE, message=FALSE, warning=FALSE}
 dev.new()
-par(mfrow = c(3,1))
-hist(unlist(null.distr.markov_no_triangles[,1]), xlab = "transitivity");
-abline(v = transitivity(neurons_g), col = "red")
-hist(unlist(null.distr.markov_no_triangles[,2]), xlab = "in-degree");
+png(file="Plots/Simulation/Markov.png")
+par(mfrow = c(1,2))
+hist(unlist(null.distr.markov_no_triangles[,2]),main="In-Degree SD", xlab = "in-degree");
 abline(v = sd(degree(neurons_g, mode = "in")), col = "red")
-hist(unlist(null.distr.markov_no_triangles[,3]),
+
+hist(unlist(null.distr.markov_no_triangles[,3]),main="Out-Degree SD",
      xlim = c(4,5.25),xlab = "out-degree");
 abline(v = sd(degree(neurons_g, mode = "out")), col = "red")
+
+mtext("Markov without triangles",
+      side = 3,
+      line = - 1,
+      outer = TRUE)
+dev.off()
 ```
+![Markov simulation](Plots/Simulation/Markov.png){width=50%}
 
 ## Alternating k-stars simulation
-```{r fig.show="hold", out.width="50%", fig.cap="prova cap"}
+```{r eval=FALSE, message=FALSE, warning=FALSE}
 dev.new()
-par(mfrow = c(3,1))
-hist(unlist(null.distr.k_star[,1]), xlab = "transitivity");
-abline(v = transitivity(neurons_g), col = "red")
-hist(unlist(null.distr.k_star[,2]), xlab = "in-degree");
+png(file="Plots/Simulation/Stars.png")
+par(mfrow = c(1,2))
+hist(unlist(null.distr.k_star[,2]),main="In-Degree SD",
+     xlab = "in-degree");
 abline(v = sd(degree(neurons_g, mode = "in")), col = "red")
-hist(unlist(null.distr.k_star[,3]), xlim = c(4,5.25),xlab = "out-degree");
+
+hist(unlist(null.distr.k_star[,3]), main="Out-Degree SD",
+     xlim = c(4,5.25),xlab = "out-degree");
 abline(v = sd(degree(neurons_g, mode = "out")), col = "red")
+
+mtext("Alternating k-stars",
+      side = 3,
+      line = - 1,
+      outer = TRUE)
+dev.off()
 ```
+![Alternation k-star simulation](Plots/Simulation/Stars.png){width=50%}
 
 # Conclusions from model simulations
 
